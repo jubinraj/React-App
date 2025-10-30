@@ -1,7 +1,14 @@
 import logo from './logo.svg';
 import './App.css';
+import { useState } from 'react';
+import { Button } from 'primereact/button' 
 
 function App() {
+
+  const [counter, setCounter] = useState(0);
+  const onClickHandle = () =>{
+    setCounter(counter+1)
+  }
   return (
     <div className="App">
       <header className="App-header">
@@ -17,6 +24,7 @@ function App() {
         >
           Learn React
         </a>
+        <Button label={`Increment (${counter})`}  onClick={onClickHandle} style={{fontSize:"xxx-Large"}}/>
       </header>
     </div>
   );
