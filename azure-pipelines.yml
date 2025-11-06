@@ -1,0 +1,61 @@
+trigger:
+  - StaticWebApp
+
+resources:
+  repositories:
+    - repository: py-azure-pipelines
+      type: git
+      name: Fulcrum/py-azure-pipelines
+      ref: refs/heads/main
+
+
+stages:
+
+  - stage: Build
+    displayName: "App Build"    
+
+    jobs:
+      - job: build
+        displayName: App Build
+        pool:
+          vmImage: ubuntu-latest
+
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '22.x' # replace this value with the version that you need for your project      
+            displayName: 'Install Node.js'
+
+          # Install dependencies and build the app
+          - script: |
+              npm install      
+            displayName: 'Install Dependencies'
+
+          - script: |
+              npm run build   # Uses Vite to build (creates 'dist' folder by default)
+            displayName: 'Build App'
+      
+      
+
+  
+  - stage: sandbox_deployment
+    displayName: "Deploy Sandbox"
+    condition: eq(variables['Build.SourceBranchName'], 'dev')
+
+    jobs:
+      - job: sandbox
+        displayName: "Deploy"
+        pool:
+          vmImage: ubuntu-latest
+        steps:       
+          # Deploy to Azure Static Web App
+          - task: AzureStaticWebApp@0
+            inputs:
+              app_location: '.'              # Root of the project
+              output_location: 'dist'        # Vite builds to 'dist' by default
+              api_location: ''               # Leave empty if you have no API
+              azure_static_web_apps_api_token: '$(AZURE_STATIC_WEB_APPS_API_TOKEN)'
+            displayName: 'Deploy to Azure Static Web Apps'
+                     
+            
+  
